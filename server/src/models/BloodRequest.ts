@@ -15,6 +15,7 @@ export interface IBloodRequest extends Document {
     urgency: 'critical' | 'moderate' | 'low';
     status: 'active' | 'fulfilled' | 'cancelled';
     donors: mongoose.Types.ObjectId[]; // List of users who offered help
+    medicalReport?: string; // S3 Key or URL
     createdAt: Date;
     updatedAt: Date;
 }
@@ -45,7 +46,8 @@ const BloodRequestSchema: Schema = new Schema({
         enum: ['active', 'fulfilled', 'cancelled'],
         default: 'active'
     },
-    donors: [{ type: Schema.Types.ObjectId, ref: 'User' }]
+    donors: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    medicalReport: { type: String }
 }, { timestamps: true });
 
 BloodRequestSchema.index({ location: '2dsphere' });

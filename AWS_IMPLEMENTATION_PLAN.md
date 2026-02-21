@@ -9,19 +9,30 @@ This plan outlines how to integrate AWS services into the LifeLink-AI project us
 1.  **S3 Bucket Creation**: Create a bucket (e.g., `linklifeai`). [COMPLETED]
 2.  **AWS SDK Integration**: Install `@aws-sdk/client-s3` and `@aws-sdk/s3-request-presigner`. [COMPLETED]
 3.  **Storage Service**: Create an `uploadService.ts` (implemented as `s3Service.ts`) to handle file uploads to S3. [COMPLETED]
-4.  **Refactor**: Update `User` and `Equipment` models to store S3 URLs or keys instead of local paths. [IN PROGRESS]
+4.  **Refactor**: Update `User`, `EquipmentRequest`, and `BloodRequest` models to store S3 URLs or keys. [COMPLETED]
 
 ---
 
-## 2. AWS Cognito (Identity & Access Management) - [FREE TIER]
+## 2. AWS CloudFront (Content Delivery Network) - [FREE TIER]
+**Purpose**: Speed up the delivery of media files from S3 and provide HTTPS access.
+
+### Implementation Steps:
+1.  **Distribution**: Create a CloudFront distribution with S3 as the origin. [COMPLETED]
+2.  **Origin Access Control (OAC)**: Configure OAC so that S3 only allows access from CloudFront. [COMPLETED]
+3.  **URL Refactor**: Update `s3Service.ts` to return CloudFront URLs instead of direct S3 URLs. [COMPLETED]
+4.  **Cache Policy**: Set up CachingOptimized policy for performance. [COMPLETED]
+
+---
+
+## 3. AWS Cognito (Identity & Access Management) - [FREE TIER]
 **Purpose**: Manage user authentication, authorization, and secure sign-in.
 
 ### Implementation Steps:
-1.  **User Pool**: Set up a Cognito User Pool with email as the primary login.
-2.  **App Client**: Configure an app client for the LifeLink-AI server.
-3.  **Auth Integration**: Install `amazon-cognito-identity-js` or use `@aws-sdk/client-cognito-identity-provider`.
-4.  **Migration**: Replace current `bcrypt` and `jwt` logic in `authController.ts` with Cognito API calls.
-5.  **Middleware**: Update `authMiddleware.ts` to verify Cognito JWT tokens.
+1.  **User Pool**: Set up a Cognito User Pool with email as the primary login. [COMPLETED]
+2.  **App Client**: Configure an app client for the LifeLink-AI server. [COMPLETED]
+3.  **Auth Integration**: Install `amazon-cognito-identity-js` or use `@aws-sdk/client-cognito-identity-provider`. [COMPLETED]
+4.  **Migration**: Replace current `bcrypt` and `jwt` logic in `authController.ts` with Cognito API calls. [COMPLETED]
+5.  **Middleware**: Update `authMiddleware.ts` to verify Cognito JWT tokens. [COMPLETED]
 
 ---
 
@@ -30,10 +41,10 @@ This plan outlines how to integrate AWS services into the LifeLink-AI project us
 
 ### Implementation Steps:
 1.  **Functions**:
-    - `notifyDonorsLambda`: Triggered when a new Blood Request is created.
-    - `generateReportLambda`: Triggered when a request is completed to generate a PDF report.
-2.  **Framework**: Use Serverless Framework or AWS SAM to deploy functions.
-3.  **Triggers**: Connect Lambda functions to SNS (Simple Notification Service) or direct API calls.
+    - `notifyDonorsLambda`: Triggered when a new Blood Request is created. [IN PROGRESS]
+    - `generateReportLambda`: Triggered when a request is completed to generate a PDF report. [PLANNED]
+2.  **Framework**: Use Serverless Framework or AWS SAM to deploy functions. [PLANNED]
+3.  **Triggers**: Connect Lambda functions to SNS (Simple Notification Service) or direct API calls. [PLANNED]
 
 ---
 
@@ -59,6 +70,7 @@ This plan outlines how to integrate AWS services into the LifeLink-AI project us
 
 ## Cost Summary (Free Tier)
 - **S3**: 5GB standard storage, 20k GET requests, 2k PUT requests.
+- **CloudFront**: 1TB of data transfer out per month (Free Tier).
 - **Lambda**: 1 million free requests per month.
 - **Cognito**: 50,000 monthly active users (MAUs).
 - **DynamoDB**: 25GB of storage, 25 provisioned Write and Read Capacity Units.
@@ -66,5 +78,7 @@ This plan outlines how to integrate AWS services into the LifeLink-AI project us
 
 ## Next Steps
 1. ✅ S3 Integration is complete. Media can now be uploaded via `/api/media/upload`.
-2. Refactor `User` model to use S3 for avatars.
-3. Begin **AWS Cognito Integration** to replace local JWT authentication.
+2. ✅ Models (`User`, `EquipmentRequest`, `BloodRequest`) updated to store S3 keys/URLs.
+3. ✅ **AWS CloudFront** configured for faster media delivery (HTTPS).
+4. ✅ **AWS Cognito Integration** completed. Authentication is now handled by AWS.
+5. Begin **AWS Lambda** setup for background tasks (PDF generation, notifications).

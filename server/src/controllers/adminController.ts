@@ -5,7 +5,7 @@ import TransferRequest from '../models/TransferRequest';
 // Equipment Controllers
 export const createEquipmentRequest = async (req: Request, res: Response) => {
     try {
-        const { equipmentName, quantity, type, urgency, description } = req.body;
+        const { equipmentName, quantity, type, urgency, description, equipmentImage } = req.body;
         const hospitalId = (req as any).user.id;
 
         const request = new EquipmentRequest({
@@ -14,7 +14,8 @@ export const createEquipmentRequest = async (req: Request, res: Response) => {
             quantity,
             type,
             urgency,
-            description
+            description,
+            equipmentImage
         });
 
         await request.save();

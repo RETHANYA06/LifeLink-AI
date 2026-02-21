@@ -8,6 +8,7 @@ export interface IEquipmentRequest extends Document {
     urgency: 'low' | 'medium' | 'high' | 'critical';
     status: 'pending' | 'fullfilled' | 'cancelled';
     description?: string;
+    equipmentImage?: string; // S3 Key or URL
     createdAt: Date;
     updatedAt: Date;
 }
@@ -27,7 +28,8 @@ const EquipmentRequestSchema: Schema = new Schema({
         enum: ['pending', 'fullfilled', 'cancelled'],
         default: 'pending'
     },
-    description: { type: String }
+    description: { type: String },
+    equipmentImage: { type: String }
 }, { timestamps: true });
 
 export default mongoose.model<IEquipmentRequest>('EquipmentRequest', EquipmentRequestSchema);

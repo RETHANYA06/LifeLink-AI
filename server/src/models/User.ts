@@ -7,6 +7,7 @@ export interface IUser extends Document {
     phone: string;
     role: 'patient' | 'doctor' | 'hospital_admin' | 'emergency_admin';
     avatar?: string;
+    medicalReports?: string[]; // S3 Keys or URLs
     location?: {
         type: string;
         coordinates: number[];
@@ -26,6 +27,7 @@ const UserSchema: Schema = new Schema({
         default: 'patient'
     },
     avatar: { type: String },
+    medicalReports: [{ type: String }],
     location: {
         type: { type: String, default: 'Point' },
         coordinates: { type: [Number], default: [0, 0] } // [longitude, latitude]

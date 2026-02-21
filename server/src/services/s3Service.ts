@@ -36,9 +36,15 @@ export const uploadToS3 = async (file: Express.Multer.File, folder: string = "me
 
     try {
         await s3Client.send(command);
+
+        const cloudfrontDomain = process.env.VITE_CLOUDFRONT_DOMAIN;
+        const url = cloudfrontDomain
+            ? `https://${cloudfrontDomain}/${fileKey}`
+            : `https://${BUCKET_NAME}.s3.${process.env.VITE_AWS_REGION}.amazonaws.com/${fileKey}`;
+
         return {
             key: fileKey,
-            url: `https://${BUCKET_NAME}.s3.${process.env.VITE_AWS_REGION}.amazonaws.com/${fileKey}`,
+            url,
         };
     } catch (error) {
         console.error("Error uploading to S3:", error);

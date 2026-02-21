@@ -6,7 +6,7 @@ import BloodRequest from '../models/BloodRequest';
 // @access  Private
 export const createBloodRequest = async (req: Request, res: Response) => {
     try {
-        const { patientName, bloodType, hospital, age, phone, location, urgency } = req.body;
+        const { patientName, bloodType, hospital, age, phone, location, urgency, medicalReport } = req.body;
         const userId = (req as any).user.id;
 
         const newRequest = new BloodRequest({
@@ -21,7 +21,8 @@ export const createBloodRequest = async (req: Request, res: Response) => {
                 coordinates: location?.coordinates || [0, 0],
                 address: location?.address || ''
             },
-            urgency: urgency || 'critical'
+            urgency: urgency || 'critical',
+            medicalReport
         });
 
         const savedRequest = await newRequest.save();

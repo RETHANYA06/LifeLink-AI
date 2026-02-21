@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 import jwksClient from 'jwks-rsa';
+import User from '../models/User';
 
 const region = process.env.AWS_REGION || 'us-east-1';
 const userPoolId = process.env.COGNITO_USER_POOL_ID || '';
@@ -26,11 +27,24 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
             jwt.verify(token, getKey, {
                 issuer: `https://cognito-idp.${region}.amazonaws.com/${userPoolId}`,
                 algorithms: ['RS256']
-            }, (err, decoded) => {
+            }, async (err, decoded: any) => {
                 if (err) {
                     return res.status(401).json({ message: 'Not authorized, token failed', error: err.message });
                 }
-                (req as any).user = decoded;
+
+                // Fetch user from MongoDB using email from Cognito token
+                const user = await User.findOne({ email: decoded.email });
+                if (!user) {
+                    return res.status(401).json({ message: 'User not found in local database' });
+                }
+
+                // Standardize req.user for other controllers
+                (req as any).user = {
+                    ...decoded,
+                    id: user._id,
+                    role: user.role
+                };
+
                 next();
             });
 
