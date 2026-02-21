@@ -470,23 +470,23 @@ const DoctorDashboard = () => {
                         <div className="space-y-10">
                             <h2 className="text-3xl font-black text-slate-900 dark:text-white uppercase italic tracking-tighter">Medical Intelligence Reports</h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                                {mockReports.map((report, i) => (
+                                {mockReports.map((repo) => (
                                     <motion.div
-                                        key={report.id}
+                                        key={repo.id}
                                         initial={{ opacity: 0, scale: 0.95 }}
                                         animate={{ opacity: 1, scale: 1 }}
                                         className="bg-white dark:bg-slate-950 p-10 rounded-[2.5rem] border border-slate-100 dark:border-white/5 shadow-sm group hover:border-indigo-500/40 transition-all"
                                     >
                                         <div className="w-12 h-12 bg-indigo-600/10 rounded-2xl flex items-center justify-center text-indigo-600 mb-6 font-bold text-sm">
-                                            {report.id.slice(-3)}
+                                            {repo.id.slice(-3)}
                                         </div>
-                                        <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase italic mb-2">{report.title}</h3>
-                                        <p className="text-sm font-bold text-slate-500 dark:text-white/30 mb-8 uppercase tracking-widest">Node: {report.patient}</p>
+                                        <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase italic mb-2">{repo.title}</h3>
+                                        <p className="text-sm font-bold text-slate-500 dark:text-white/30 mb-8 uppercase tracking-widest">Node: {repo.patient}</p>
 
                                         <div className="flex items-center justify-between pt-6 border-t border-slate-100 dark:border-white/5">
                                             <div className="flex flex-col">
                                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Released</span>
-                                                <span className="text-[11px] font-black text-indigo-600 dark:text-white/70 uppercase">{report.date}</span>
+                                                <span className="text-[11px] font-black text-indigo-600 dark:text-white/70 uppercase">{repo.date}</span>
                                             </div>
                                             <button className="px-6 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-black text-[9px] uppercase tracking-widest hover:scale-105 transition-all shadow-xl">
                                                 Decrypt

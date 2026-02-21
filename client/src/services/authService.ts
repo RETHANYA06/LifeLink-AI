@@ -16,6 +16,11 @@ export const loginUser = async (userData: any) => {
     return response.data;
 };
 
+export const verifyEmail = async (email: string, code: string) => {
+    const response = await axios.post(`${API_URL}/verify-email`, { email, code });
+    return response.data;
+};
+
 export const logoutUser = () => {
     localStorage.removeItem('user');
     localStorage.removeItem('token');

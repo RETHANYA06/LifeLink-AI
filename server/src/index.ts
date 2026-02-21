@@ -29,6 +29,8 @@ import bloodRoutes from './routes/bloodRoutes';
 import locationRoutes from './routes/locationRoutes';
 import adminRoutes from './routes/adminRoutes';
 import unitRoutes from './routes/unitRoutes';
+import mediaRoutes from './routes/mediaRoutes';
+
 
 app.use('/api/auth', authRoutes);
 app.use('/api/emergencies', emergencyRoutes);
@@ -36,6 +38,8 @@ app.use('/api/blood', bloodRoutes);
 app.use('/api/locations', locationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/units', unitRoutes);
+app.use('/api/media', mediaRoutes);
+
 
 app.get('/', (req, res) => {
     res.send('LifeLink AI API is Running');

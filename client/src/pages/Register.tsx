@@ -26,16 +26,8 @@ const Register: React.FC = () => {
         setLoading(true);
         setError('');
         try {
-            const data = await registerUser(formData);
-            if (data.user.role === 'doctor') {
-                navigate('/doctor-dashboard');
-            } else if (data.user.role === 'emergency_admin') {
-                navigate('/emergency-responder-dashboard');
-            } else if (data.user.role === 'hospital_admin') {
-                navigate('/admin-dashboard');
-            } else {
-                navigate('/dashboard');
-            }
+            await registerUser(formData);
+            navigate(`/verify-email?email=${encodeURIComponent(formData.email)}`);
         } catch (err: any) {
             setError(err.response?.data?.message || 'Registration failed. Please try again.');
         } finally {

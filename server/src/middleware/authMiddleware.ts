@@ -1,23 +1,44 @@
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
+import jwksClient from 'jwks-rsa';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
+const region = process.env.AWS_REGION || 'us-east-1';
+const userPoolId = process.env.COGNITO_USER_POOL_ID || '';
 
-export const protect = (req: Request, res: Response, next: NextFunction) => {
+const client = jwksClient({
+    jwksUri: `https://cognito-idp.${region}.amazonaws.com/${userPoolId}/.well-known/jwks.json`
+});
+
+function getKey(header: any, callback: any) {
+    client.getSigningKey(header.kid, function (err, key) {
+        const signingKey = key?.getPublicKey();
+        callback(null, signingKey);
+    });
+}
+
+export const protect = async (req: Request, res: Response, next: NextFunction) => {
     let token;
 
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
         try {
             token = req.headers.authorization.split(' ')[1];
-            const decoded = jwt.verify(token, JWT_SECRET);
-            (req as any).user = decoded;
-            next();
+
+            jwt.verify(token, getKey, {
+                issuer: `https://cognito-idp.${region}.amazonaws.com/${userPoolId}`,
+                algorithms: ['RS256']
+            }, (err, decoded) => {
+                if (err) {
+                    return res.status(401).json({ message: 'Not authorized, token failed', error: err.message });
+                }
+                (req as any).user = decoded;
+                next();
+            });
+
         } catch (error) {
+            console.error('Auth Middleware Error:', error);
             res.status(401).json({ message: 'Not authorized, token failed' });
         }
-    }
-
-    if (!token) {
+    } else {
         res.status(401).json({ message: 'Not authorized, no token' });
     }
 };

@@ -1,51 +1,51 @@
 import { Request, Response } from 'express';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import User, { IUser } from '../models/User';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
+import * as cognitoService from '../services/cognitoService';
 
 export const register = async (req: Request, res: Response) => {
     try {
         const { name, email, password, phone, role } = req.body;
 
-        // Check if user exists
+        // Check if user exists in Mongo
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ message: 'User already exists' });
         }
 
-        // Hash password
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
+        // 1. Register in AWS Cognito
+        await cognitoService.signUp(email, password, name);
 
-        // Create user
+        // 2. Create shadow user in MongoDB for profile data
         const user = new User({
             name,
             email,
-            password: hashedPassword,
             phone,
             role: role || 'patient'
+            // We no longer store hashedPassword in Mongo as Cognito handles it
         });
 
         await user.save();
 
-        // Create Token
-        const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '1d' });
-
         res.status(201).json({
-            message: 'User registered successfully',
-            token,
-            user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                role: user.role
-            }
+            message: 'Registration successful! Please check your email for the verification code.',
+            email
         });
-    } catch (error) {
+    } catch (error: any) {
         console.error('Registration Error:', error);
-        res.status(500).json({ message: 'Server error during registration' });
+        res.status(400).json({
+            message: error.message || 'Error during registration',
+            code: error.code || 'InternalServerError'
+        });
+    }
+};
+
+export const verifyEmail = async (req: Request, res: Response) => {
+    try {
+        const { email, code } = req.body;
+        await cognitoService.confirmSignUp(email, code);
+        res.json({ message: 'Email verified successfully! You can now log in.' });
+    } catch (error: any) {
+        res.status(400).json({ message: error.message });
     }
 };
 
@@ -53,24 +53,24 @@ export const login = async (req: Request, res: Response) => {
     try {
         const { email, password } = req.body;
 
-        // Check user
-        const user = await User.findOne({ email }).select('+password');
+        // 1. Authenticate with Cognito
+        const authResult = await cognitoService.signIn(email, password);
+
+        if (!authResult) {
+            return res.status(401).json({ message: 'Authentication failed' });
+        }
+
+        // 2. Fetch User Profile from Mongo
+        const user = await User.findOne({ email });
         if (!user) {
-            return res.status(400).json({ message: 'Invalid credentials' });
+            return res.status(404).json({ message: 'User profile not found in local database' });
         }
-
-        // Check password
-        const isMatch = await bcrypt.compare(password, user.password as string);
-        if (!isMatch) {
-            return res.status(400).json({ message: 'Invalid credentials' });
-        }
-
-        // Create Token
-        const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '1d' });
 
         res.json({
             message: 'Login successful',
-            token,
+            token: authResult.IdToken, // Use IdToken for authentication
+            refreshToken: authResult.RefreshToken,
+            accessToken: authResult.AccessToken,
             user: {
                 id: user._id,
                 name: user.name,
@@ -78,8 +78,8 @@ export const login = async (req: Request, res: Response) => {
                 role: user.role
             }
         });
-    } catch (error) {
+    } catch (error: any) {
         console.error('Login Error:', error);
-        res.status(500).json({ message: 'Server error during login' });
+        res.status(400).json({ message: error.message || 'Invalid credentials' });
     }
 };
