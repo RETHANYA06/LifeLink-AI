@@ -2,7 +2,6 @@
 
 > **An AI-powered healthcare ecosystem that connects patients, doctors, hospitals, ambulances, blood donors, and emergency control centers to deliver faster, smarter, and more efficient emergency medical services.**
 
-![License](https://img.shields.io/badge/License-MIT-blue.svg)
 ![Status](https://img.shields.io/badge/Status-Active-success)
 ![React](https://img.shields.io/badge/Frontend-React-61DAFB)
 ![Node.js](https://img.shields.io/badge/Backend-Node.js-339933)
