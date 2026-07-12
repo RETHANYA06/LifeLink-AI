@@ -46,7 +46,6 @@ LifeLink AI provides:
 - Blood donor matching
 - Organ emergency coordination
 - Hospital resource monitoring
-- AI healthcare chatbot
 
 ---
 
